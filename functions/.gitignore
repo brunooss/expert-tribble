@@ -9,7 +9,6 @@
 # production
 /build
 /lib
-.firebase/
 
 # misc
 .DS_Store
