@@ -9,6 +9,7 @@ class App extends React.Component {
           <h1 className="App-title">
             Welcome to/ Bienvenido a/ Bem vindo ao Expert Tribble
           </h1>
+          <button formTarget="youtube.com">Press</button>
         </header>
       </div>
     );
