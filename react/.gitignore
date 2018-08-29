@@ -1,9 +1,7 @@
 # See https://help.github.com/ignore-files/ for more about ignoring files.
 
 # dependencies
-Bruno Oliveira/.AndroidStudio3.0
 /node_modules
-.react-project/node_modules
 
 # testing
 /coverage
@@ -11,7 +9,6 @@ Bruno Oliveira/.AndroidStudio3.0
 # production
 /build
 /lib
-.firebase/
 
 # misc
 .DS_Store
