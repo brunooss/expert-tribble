@@ -1,7 +1,9 @@
 import * as React from "react";
+
 import "./App.css";
 import "./style.css";
 import * as firebase from "firebase";
+
 
 class App extends React.Component {
   public render() {
@@ -18,6 +20,8 @@ class App extends React.Component {
             <i className="material-icons Icon">stay_current_portrait</i>
             <i className="material-icons Icon">chat</i>
           </div>
+        <header className="App-header">
+          <h1 className="App-title">Expert Tribble</h1>
         </header>
         <form className="Login">
           <h1>Log in</h1>
