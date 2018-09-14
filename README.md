@@ -14,10 +14,11 @@ O melhor chat...
 Enviar react para hospedagem:
 
 ```bash
-cd react/
+cd react-project/
 npm run build
 cd ../
 firebase deploy --only hosting
+
 ```
 
 Publicar functions no servidor:
