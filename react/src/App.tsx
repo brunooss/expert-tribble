@@ -8,6 +8,8 @@ interface IState {
 
   formEmail: string,
   formPassword: string,
+
+  messages: any,
 }
 
 class App extends React.Component {
@@ -15,9 +17,11 @@ class App extends React.Component {
     authState: 'loading',
     formEmail: '',
     formPassword: '',
+    messages: {},
   }
 
   componentDidMount() {
+    // observa autenticacao
     firebase.auth().onAuthStateChanged((user) => {
       if (!user) {
         this.setState({ authState: 'naoautenticado' });
@@ -27,6 +31,11 @@ class App extends React.Component {
         console.log('AUTENTICADO');
       }
     });
+
+    // observa lista de mensagens
+    firebase.database().ref('messages').on('value', (messagesSnapshot: any) => {
+      this.setState({ messages: messagesSnapshot.val() });
+    })
   }
 
   signIn = (event: any) => {
@@ -47,6 +56,12 @@ class App extends React.Component {
     this.setState({ [event.target.name]: event.target.value })
   }
 
+  generateMessage = () => {
+    firebase.database()
+      .ref('messages')
+      .push({ text: "Mensagem gerada automaticamente!", random: Math.random()*9999 })
+  }
+
   public render() {
 
     switch (this.state.authState) {
@@ -64,6 +79,8 @@ class App extends React.Component {
             </div>
           </header>
           <h1>Chat vai ser aqui...</h1>
+          <button onClick={this.generateMessage}>Generate message</button>
+
           <button onClick={this.signOut}>Sign out</button>
         </div>
       );
