@@ -95,7 +95,7 @@ class App extends React.Component {
                 <i className="material-icons Icon">chat</i>
               </div>
             </header>
-            <h1>Chat vai ser aqui...</h1>
+            <h1>Chat vai ser aqui ...</h1>
             <button onClick={this.generateMessage}>Generate message</button>
 
             <button onClick={this.signOut}>Sign out</button>
