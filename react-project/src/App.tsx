@@ -4,7 +4,12 @@ import "./style.css";
 import * as firebase from "firebase";
 
 import "./style.css";
-import * as ReactDOM from "react-dom";
+
+interface Message {
+  text: string;
+  time: number;
+  email: string | null;
+}
 
 interface IState {
   authState: "loading" | "autenticado" | "naoautenticado";
@@ -12,15 +17,17 @@ interface IState {
   formEmail: string;
   formPassword: string;
 
-  messages: any;
+  messageText: string;
+  messages: Message[];
 }
 
-class App extends React.Component {
+class App extends React.Component<{}, IState> {
   state: IState = {
     authState: "loading",
     formEmail: "",
     formPassword: "",
-    messages: []
+    messageText: "",
+    messages: [],
   };
 
   componentDidMount() {
@@ -34,6 +41,36 @@ class App extends React.Component {
         console.log("AUTENTICADO");
       }
     });
+
+    // observa lista de mensagens
+    firebase
+      .database()
+      .ref("messages")
+      .on("value", (messagesSnapshot) => {
+        if (!messagesSnapshot) return;
+
+        const messagesData = messagesSnapshot.val();
+        console.log({ messagesData });
+
+        // trecho para estudo
+        // objetivo: transformar um objeto de dados do firebase em uma matriz
+        const newMessages: Message[] = []
+        
+        // 1 forma
+        const messageIds = Object.keys(messagesData);
+        messageIds.forEach((id) => {
+          newMessages.push( messagesData[id] );
+        });
+
+        // 2 forma
+        // for (const message of messagesData) {
+        //   newMessages.push(message);
+        // }
+
+        // fim do trecho
+
+        this.setState({ messages: newMessages });
+      });
   }
 
   signIn = (event: any) => {
@@ -58,29 +95,49 @@ class App extends React.Component {
     firebase.auth().signOut();
   };
 
-  onSignInFormFieldChange = (event: any) => {
-    console.log(event.target);
-    this.setState({ [event.target.name]: event.target.value });
+  onChangeSignInFormField = (event: any) => {
+    const fieldName: "formEmail" | "formPassword" = event.target.name;
+    const fieldValue: string = event.target.value;
+    
+    switch (fieldName) {
+      case "formEmail": return this.setState({ formEmail: fieldValue });
+      case "formPassword": return this.setState({ formPassword: fieldValue });
+    }
   };
 
-  generateMessage = () => {
-    firebase
-      .database()
-      .ref("messages")
-      .push({
-        text: "Mensagem gerada automaticamente!",
-        random: Math.random() * 9999
-      });
-  };
+  onChangeMessageField = (event: any): void => {
+    const messageText = event.target.value
+    this.setState({ messageText })
+  }
 
-  receiveMessage = () => {
-    firebase
+  onKeyPressMessageField = (event: any): void => {
+    // check if enter has been pressed
+    if (event.charCode === 13) {
+      this.sendMessage()
+    }
+  }
+
+  sendMessage = async () => {
+    const messageText = this.state.messageText;
+    const user = firebase.auth().currentUser;
+
+    if (messageText === "" || !user) return;
+
+    this.setState({ messageText: "" });
+
+    const message: Message = {
+      text: messageText,
+      email: user.email,
+      time: Date.now(),
+    }
+
+    await firebase
       .database()
       .ref("messages")
-      .on("value", (messageSnapshot: any) => {
-        ReactDOM.render(<h1>New Message!</h1>, document.getElementById("msg"));
-      });
-  };
+      .push(message);
+
+    console.log('Mensagem criada!')
+  }
 
   public render() {
     switch (this.state.authState) {
@@ -98,10 +155,20 @@ class App extends React.Component {
               </div>
             </header>
             <h1>Chat vai ser aqui ...</h1>
-            <button onClick={this.generateMessage}>Generate message</button>
             <button onClick={this.signOut}>Sign out</button>
             <div id="msg">
-              <h1>Messages here:</h1>
+              <input type="text" placeholder="Digite sua mensagem aqui..." value={this.state.messageText} onChange={this.onChangeMessageField} onKeyPress={this.onKeyPressMessageField} />
+              <ul>
+                {this.state.messages.map((message, index) => (
+                  <li key={index}>
+                    <span style={{ color: '#FF4500' }}>{message.time}</span>
+                    {' '}
+                    <span style={{ color: '#FF4500' }}>{message.email}</span>
+                    {': '}
+                    {message.text}                    
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         );
@@ -117,7 +184,7 @@ class App extends React.Component {
                 className="LoginInput"
                 name="formEmail"
                 value={this.state.formEmail}
-                onChange={this.onSignInFormFieldChange}
+                onChange={this.onChangeSignInFormField}
               />
               <br />
               <input
@@ -125,7 +192,7 @@ class App extends React.Component {
                 name="formPassword"
                 type="password"
                 value={this.state.formPassword}
-                onChange={this.onSignInFormFieldChange}
+                onChange={this.onChangeSignInFormField}
               />
               <br />
               <button type="submit">Sign In</button>
@@ -133,17 +200,6 @@ class App extends React.Component {
           </div>
         );
     }
-    // observa lista de mensagens
-    firebase
-      .database()
-      .ref("messages")
-      .on("value", (messageSnapshot: any) => {
-        this.setState({ messages: this.state.messages + messageSnapshot });
-        console.log("Nova mensagem: " + messageSnapshot.val());
-        this.state.messages.map((message: any) => (
-          <h1 key="KEY">New message</h1>
-        ));
-      });
   }
 }
 
