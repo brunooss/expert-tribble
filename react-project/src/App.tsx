@@ -4,6 +4,7 @@ import "./style.css";
 import * as firebase from "firebase";
 
 import "./style.css";
+import * as ReactDOM from "react-dom";
 
 interface IState {
   authState: "loading" | "autenticado" | "naoautenticado";
@@ -19,7 +20,7 @@ class App extends React.Component {
     authState: "loading",
     formEmail: "",
     formPassword: "",
-    messages: {}
+    messages: []
   };
 
   componentDidMount() {
@@ -33,14 +34,6 @@ class App extends React.Component {
         console.log("AUTENTICADO");
       }
     });
-
-    // observa lista de mensagens
-    firebase
-      .database()
-      .ref("messages")
-      .on("value", (messagesSnapshot: any) => {
-        this.setState({ messages: messagesSnapshot.val() });
-      });
   }
 
   signIn = (event: any) => {
@@ -80,6 +73,15 @@ class App extends React.Component {
       });
   };
 
+  receiveMessage = () => {
+    firebase
+      .database()
+      .ref("messages")
+      .on("value", (messageSnapshot: any) => {
+        ReactDOM.render(<h1>New Message!</h1>, document.getElementById("msg"));
+      });
+  };
+
   public render() {
     switch (this.state.authState) {
       case "loading":
@@ -97,15 +99,17 @@ class App extends React.Component {
             </header>
             <h1>Chat vai ser aqui ...</h1>
             <button onClick={this.generateMessage}>Generate message</button>
-
             <button onClick={this.signOut}>Sign out</button>
+            <div id="msg">
+              <h1>Messages here:</h1>
+            </div>
           </div>
         );
       default:
         return (
           <div className="App">
-            <header className="App-header">
-              <h1 className="App-title">Expert Tribble</h1>
+            <header className="Header">
+              <h1 className="Title">Expert Tribble</h1>
             </header>
             <form className="Login" onSubmit={this.signIn}>
               <h1>Log in</h1>
@@ -123,11 +127,23 @@ class App extends React.Component {
                 value={this.state.formPassword}
                 onChange={this.onSignInFormFieldChange}
               />
+              <br />
               <button type="submit">Sign In</button>
             </form>
           </div>
         );
     }
+    // observa lista de mensagens
+    firebase
+      .database()
+      .ref("messages")
+      .on("value", (messageSnapshot: any) => {
+        this.setState({ messages: this.state.messages + messageSnapshot });
+        console.log("Nova mensagem: " + messageSnapshot.val());
+        this.state.messages.map((message: any) => (
+          <h1 key="KEY">New message</h1>
+        ));
+      });
   }
 }
 
