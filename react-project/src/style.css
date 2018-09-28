@@ -8,23 +8,25 @@
 
 .Header {
   height: 200px;
-
-  background-color: rgb(57, 107, 107);
+  background-color: rgb(7, 32, 32);
   text-align: center;
   margin-top: -60px;
 }
 
 .Title {
-  font-size: 90px;
+  font-size: 60px;
   text-align: center;
-  padding-top: 10px;
+  padding-top: 50px;
   font-weight: bold;
   color: white;
 }
 
-.Icon {
-  padding: 3px;
-  color: white;
+.Subtitle {
+  font-size: 30px;
+  text-align: center;
+  margin-top: -40px;
+  font-weight: bold;
+  color: rgb(196, 196, 196);
 }
 
 .Login {

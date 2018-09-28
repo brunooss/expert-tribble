@@ -12,7 +12,7 @@ interface Message {
 }
 
 interface IState {
-  authState: "loading" | "autenticado" | "naoautenticado";
+  authState: "loading" | "autenticado" | "naoautenticado" | "naocadastrado";
 
   formEmail: string;
   formPassword: string;
@@ -27,7 +27,7 @@ class App extends React.Component<{}, IState> {
     formEmail: "",
     formPassword: "",
     messageText: "",
-    messages: [],
+    messages: []
   };
 
   componentDidMount() {
@@ -46,7 +46,7 @@ class App extends React.Component<{}, IState> {
     firebase
       .database()
       .ref("messages")
-      .on("value", (messagesSnapshot) => {
+      .on("value", messagesSnapshot => {
         if (!messagesSnapshot) return;
 
         const messagesData = messagesSnapshot.val();
@@ -54,12 +54,12 @@ class App extends React.Component<{}, IState> {
 
         // trecho para estudo
         // objetivo: transformar um objeto de dados do firebase em uma matriz
-        const newMessages: Message[] = []
-        
+        const newMessages: Message[] = [];
+
         // 1 forma
         const messageIds = Object.keys(messagesData);
-        messageIds.forEach((id) => {
-          newMessages.push( messagesData[id] );
+        messageIds.forEach(id => {
+          newMessages.push(messagesData[id]);
         });
 
         // 2 forma
@@ -91,6 +91,25 @@ class App extends React.Component<{}, IState> {
       );
   };
 
+  signUp = (event: any) => {
+    event.preventDefault();
+
+    if (!this.state.formEmail) {
+      return;
+    }
+    if (!this.state.formPassword) {
+      return;
+    }
+
+    firebase
+      .auth()
+      .createUserWithEmailAndPassword(
+        this.state.formEmail,
+        this.state.formPassword
+      );
+    this.setState({ authState: "naoautenticado" });
+  };
+
   signOut = () => {
     firebase.auth().signOut();
   };
@@ -98,24 +117,31 @@ class App extends React.Component<{}, IState> {
   onChangeSignInFormField = (event: any) => {
     const fieldName: "formEmail" | "formPassword" = event.target.name;
     const fieldValue: string = event.target.value;
-    
+
     switch (fieldName) {
-      case "formEmail": return this.setState({ formEmail: fieldValue });
-      case "formPassword": return this.setState({ formPassword: fieldValue });
+      case "formEmail":
+        return this.setState({ formEmail: fieldValue });
+      case "formPassword":
+        return this.setState({ formPassword: fieldValue });
     }
   };
 
   onChangeMessageField = (event: any): void => {
-    const messageText = event.target.value
-    this.setState({ messageText })
-  }
+    const messageText = event.target.value;
+    this.setState({ messageText });
+  };
 
   onKeyPressMessageField = (event: any): void => {
     // check if enter has been pressed
     if (event.charCode === 13) {
-      this.sendMessage()
+      this.sendMessage();
     }
-  }
+  };
+
+  onClickLink = (e: any) => {
+    this.setState({ authState: "naocadastrado" });
+    e.preventDefault();
+  };
 
   sendMessage = async () => {
     const messageText = this.state.messageText;
@@ -128,16 +154,16 @@ class App extends React.Component<{}, IState> {
     const message: Message = {
       text: messageText,
       email: user.email,
-      time: Date.now(),
-    }
+      time: Date.now()
+    };
 
     await firebase
       .database()
       .ref("messages")
       .push(message);
 
-    console.log('Mensagem criada!')
-  }
+    console.log("Mensagem criada!");
+  };
 
   public render() {
     switch (this.state.authState) {
@@ -157,26 +183,60 @@ class App extends React.Component<{}, IState> {
             <h1>Chat vai ser aqui ...</h1>
             <button onClick={this.signOut}>Sign out</button>
             <div id="msg">
-              <input type="text" placeholder="Digite sua mensagem aqui..." value={this.state.messageText} onChange={this.onChangeMessageField} onKeyPress={this.onKeyPressMessageField} />
+              <input
+                type="text"
+                placeholder="Digite sua mensagem aqui..."
+                value={this.state.messageText}
+                onChange={this.onChangeMessageField}
+                onKeyPress={this.onKeyPressMessageField}
+              />
               <ul>
                 {this.state.messages.map((message, index) => (
-                  <li key={index}>
-                    <span style={{ color: '#FF4500' }}>{message.time}</span>
-                    {' '}
-                    <span style={{ color: '#FF4500' }}>{message.email}</span>
-                    {': '}
-                    {message.text}                    
-                  </li>
+                  <h4 key={index} style={{ textAlign: "left" }}>
+                    <span style={{ color: "#FF4500" }}>{message.time}</span>{" "}
+                    <span style={{ color: "#FF4500" }}>{message.email}</span>
+                    {": "}
+                    {message.text}
+                  </h4>
                 ))}
               </ul>
             </div>
+          </div>
+        );
+      case "naocadastrado":
+        return (
+          <div className="App">
+            <header className="Header">
+              <h1 className="Title">Welcome to Expert Tribble</h1>
+              <h3 className="Subtitle">The developers chat</h3>
+            </header>
+            <form className="Login" onSubmit={this.signUp}>
+              <h1>Sign Up</h1>
+              <input
+                className="LoginInput"
+                name="formEmail"
+                value={this.state.formEmail}
+                onChange={this.onChangeSignInFormField}
+              />
+              <br />
+              <input
+                className="LoginInput"
+                name="formPassword"
+                type="password"
+                value={this.state.formPassword}
+                onChange={this.onChangeSignInFormField}
+              />
+              <br />
+              <button type="submit">Sign Up</button>
+            </form>
           </div>
         );
       default:
         return (
           <div className="App">
             <header className="Header">
-              <h1 className="Title">Expert Tribble</h1>
+              <h1 className="Title">Welcome to Expert Tribble</h1>
+              <h3 className="Subtitle">The developers chat</h3>
             </header>
             <form className="Login" onSubmit={this.signIn}>
               <h1>Log in</h1>
@@ -195,7 +255,12 @@ class App extends React.Component<{}, IState> {
                 onChange={this.onChangeSignInFormField}
               />
               <br />
-              <button type="submit">Sign In</button>
+              <button type="submit">Log In</button>
+              <br />
+              <span>Don't have an account? Sign up</span>{" "}
+              <a href="" onClick={this.onClickLink}>
+                here
+              </a>
             </form>
           </div>
         );
