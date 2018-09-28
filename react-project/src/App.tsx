@@ -62,7 +62,7 @@ class App extends React.Component<{}, IState> {
         const newMessages: Message[] = [];
 
         // 1 forma
-        const messageIds = Object.keys(messagesData);
+        const messageIds = Object.keys(messagesData).reverse();
         messageIds.forEach(id => {
           newMessages.push(messagesData[id]);
         });
