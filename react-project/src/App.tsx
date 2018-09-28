@@ -12,7 +12,9 @@ interface Message {
 }
 
 interface IState {
-  authState: "loading" | "autenticado" | "naoautenticado" | "naocadastrado";
+  authState: "loading" | "autenticado" | "naoautenticado";
+
+  authFormTab: "cadastro" | "login";
 
   formEmail: string;
   formPassword: string;
@@ -24,6 +26,7 @@ interface IState {
 class App extends React.Component<{}, IState> {
   state: IState = {
     authState: "loading",
+    authFormTab: "login",
     formEmail: "",
     formPassword: "",
     messageText: "",
@@ -33,12 +36,14 @@ class App extends React.Component<{}, IState> {
   componentDidMount() {
     // observa autenticacao
     firebase.auth().onAuthStateChanged(user => {
-      if (!user) {
-        this.setState({ authState: "naoautenticado" });
-        console.log("NAOAUTENTICADO");
-      } else {
+      if (this.state.authFormTab === 'cadastro') {
+        return;
+      }
+
+      if (user) {
         this.setState({ authState: "autenticado" });
-        console.log("AUTENTICADO");
+      } else {
+        this.setState({ authState: "naoautenticado" });
       }
     });
 
@@ -91,7 +96,7 @@ class App extends React.Component<{}, IState> {
       );
   };
 
-  signUp = (event: any) => {
+  signUp = async (event: any) => {
     event.preventDefault();
 
     if (!this.state.formEmail) {
@@ -101,13 +106,13 @@ class App extends React.Component<{}, IState> {
       return;
     }
 
-    firebase
-      .auth()
+    await firebase.auth()
       .createUserWithEmailAndPassword(
         this.state.formEmail,
         this.state.formPassword
       );
-    this.setState({ authState: "naoautenticado" });
+    await firebase.auth().signOut();
+    this.onToggleAuthFormTab();
   };
 
   signOut = () => {
@@ -138,9 +143,15 @@ class App extends React.Component<{}, IState> {
     }
   };
 
-  onClickLink = (e: any) => {
-    this.setState({ authState: "naocadastrado" });
-    e.preventDefault();
+  onToggleAuthFormTab = (e?: any) => {
+    this.setState((state) => ({
+      authFormTab: state.authFormTab === 'login' ? 'cadastro' : 'login',
+      formEmail: "",
+      formPassword: "",
+    }));
+    if (e) {
+      e.preventDefault();
+    }
   };
 
   sendMessage = async () => {
@@ -203,34 +214,6 @@ class App extends React.Component<{}, IState> {
             </div>
           </div>
         );
-      case "naocadastrado":
-        return (
-          <div className="App">
-            <header className="Header">
-              <h1 className="Title">Welcome to Expert Tribble</h1>
-              <h3 className="Subtitle">The developers chat</h3>
-            </header>
-            <form className="Login" onSubmit={this.signUp}>
-              <h1>Sign Up</h1>
-              <input
-                className="LoginInput"
-                name="formEmail"
-                value={this.state.formEmail}
-                onChange={this.onChangeSignInFormField}
-              />
-              <br />
-              <input
-                className="LoginInput"
-                name="formPassword"
-                type="password"
-                value={this.state.formPassword}
-                onChange={this.onChangeSignInFormField}
-              />
-              <br />
-              <button type="submit">Sign Up</button>
-            </form>
-          </div>
-        );
       default:
         return (
           <div className="App">
@@ -238,30 +221,59 @@ class App extends React.Component<{}, IState> {
               <h1 className="Title">Welcome to Expert Tribble</h1>
               <h3 className="Subtitle">The developers chat</h3>
             </header>
-            <form className="Login" onSubmit={this.signIn}>
-              <h1>Log in</h1>
-              <input
-                className="LoginInput"
-                name="formEmail"
-                value={this.state.formEmail}
-                onChange={this.onChangeSignInFormField}
-              />
-              <br />
-              <input
-                className="LoginInput"
-                name="formPassword"
-                type="password"
-                value={this.state.formPassword}
-                onChange={this.onChangeSignInFormField}
-              />
-              <br />
-              <button type="submit">Log In</button>
-              <br />
-              <span>Don't have an account? Sign up</span>{" "}
-              <a href="" onClick={this.onClickLink}>
-                here
-              </a>
-            </form>
+            {(this.state.authFormTab === 'cadastro') ? (
+              // FORMULARIO DE CADASTRO
+              <form className="Login" onSubmit={this.signUp}>
+                <h1>Sign Up</h1>
+                <input
+                  className="LoginInput"
+                  name="formEmail"
+                  value={this.state.formEmail}
+                  onChange={this.onChangeSignInFormField}
+                />
+                <br />
+                <input
+                  className="LoginInput"
+                  name="formPassword"
+                  type="password"
+                  value={this.state.formPassword}
+                  onChange={this.onChangeSignInFormField}
+                />
+                <br />
+                <button type="submit">Sign Up</button>
+                <br />
+                <span>I already has an account! Let's</span>{" "}
+                <a href="" onClick={this.onToggleAuthFormTab}>
+                  login
+                </a>
+              </form>
+            ) : (
+              // FORMULARIO DE LOGIN
+              <form className="Login" onSubmit={this.signIn}>
+                <h1>Log in</h1>
+                <input
+                  className="LoginInput"
+                  name="formEmail"
+                  value={this.state.formEmail}
+                  onChange={this.onChangeSignInFormField}
+                />
+                <br />
+                <input
+                  className="LoginInput"
+                  name="formPassword"
+                  type="password"
+                  value={this.state.formPassword}
+                  onChange={this.onChangeSignInFormField}
+                />
+                <br />
+                <button type="submit">Log In</button>
+                <br />
+                <span>Don't have an account? Sign up</span>{" "}
+                <a href="" onClick={this.onToggleAuthFormTab}>
+                  here
+                </a>
+              </form>
+          )}
           </div>
         );
     }
