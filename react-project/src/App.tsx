@@ -1,7 +1,7 @@
 import * as React from "react";
 import "./App.css";
 import "./style.css";
-import * as firebase from "firebase";
+import * as firebase from "firebase/app";
 
 import "./style.css";
 import * as ReactDOM from "react-dom";
@@ -83,6 +83,17 @@ class App extends React.Component {
   };
 
   public render() {
+    // observa lista de mensagens
+    firebase
+      .database()
+      .ref("messages")
+      .on("value", (messageSnapshot: any) => {
+        this.setState({ messages: this.state.messages + messageSnapshot });
+        console.log("Nova mensagem: " + messageSnapshot.val());
+        this.state.messages.map((message: any) => (
+          <h1 key="KEY">New message</h1>
+        ));
+      });
     switch (this.state.authState) {
       case "loading":
         return <h1>Loading...</h1>;
@@ -90,7 +101,7 @@ class App extends React.Component {
         return (
           <div className="App">
             <header className="Header">
-              <h1 className="Title">Expert tribble</h1>
+              <h1 className="Title">Expert test tribble</h1>
               <div>
                 <i className="material-icons Icon">email</i>
                 <i className="material-icons Icon">stay_current_portrait</i>
@@ -98,7 +109,7 @@ class App extends React.Component {
               </div>
             </header>
             <h1>Chat vai ser aqui ...</h1>
-            <button onClick={this.generateMessage}>Generate message</button>
+            <button onClick={this.generateMessage}>Generate the message</button>
             <button onClick={this.signOut}>Sign out</button>
             <div id="msg">
               <h1>Messages here:</h1>
@@ -109,7 +120,7 @@ class App extends React.Component {
         return (
           <div className="App">
             <header className="Header">
-              <h1 className="Title">Expert Tribble</h1>
+              <h1 className="Title">Expert test Tribble</h1>
             </header>
             <form className="Login" onSubmit={this.signIn}>
               <h1>Log in</h1>
@@ -133,17 +144,6 @@ class App extends React.Component {
           </div>
         );
     }
-    // observa lista de mensagens
-    firebase
-      .database()
-      .ref("messages")
-      .on("value", (messageSnapshot: any) => {
-        this.setState({ messages: this.state.messages + messageSnapshot });
-        console.log("Nova mensagem: " + messageSnapshot.val());
-        this.state.messages.map((message: any) => (
-          <h1 key="KEY">New message</h1>
-        ));
-      });
   }
 }
 
