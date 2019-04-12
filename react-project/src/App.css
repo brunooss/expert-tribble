@@ -1,32 +1,59 @@
-.App {
+@import "https://fonts.googleapis.com/icon?family=Material+Icons";
+
+@import "https://fonts.googleapis.com/css?family=Roboto:700";
+
+* {
+  font-family: "Roboto", sans-serif;
+}
+
+.Header {
+  height: 200px;
+  background-color: rgb(57, 107, 107);
   text-align: center;
+  margin-top: -60px;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
-}
-
-.App-header {
-  background-color: #222;
-  height: 150px;
-  padding: 20px;
+.Title {
+  font-size: 90px;
+  text-align: center;
+  padding-top: 10px;
+  font-weight: bold;
   color: white;
 }
 
-.App-title {
-  font-size: 1.5em;
+.Icon {
+  padding: 3px;
+  color: white;
 }
 
-.App-intro {
-  font-size: large;
+.Login {
+  text-align: center;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.LoginInput {
+  margin: 2px;
+  border-style: solid;
+  padding: 3px;
+}
+
+.material-icons {
+  font-family: "Material Icons";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px; /* Preferred icon size */
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  /* Support for all WebKit browsers. */
+  -webkit-font-smoothing: antialiased;
+  /* Support for Safari and Chrome. */
+  text-rendering: optimizeLegibility;
+  /* Support for Firefox. */
+  -moz-osx-font-smoothing: grayscale;
+  /* Support for IE. */
+  font-feature-settings: "liga";
 }

@@ -1,6 +1,5 @@
 import * as React from "react";
 import "./App.css";
-import "./style.css";
 import * as firebase from "firebase/app";
 
 import "./style.css";
